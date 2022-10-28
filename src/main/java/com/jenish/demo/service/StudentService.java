@@ -191,12 +191,12 @@ public class StudentService implements StuServiceInterface {
 
 		Time workedTime = null;
 		Time checkinTime = null;
-		Time currentTime = getCurrentTime();
+		//Time currentTime = getCurrentTime();
 
 		String totDayTime = null;
 		if (t.getCheckOut() == null) {
-			checkinTime = tc.diffOfTime(t.getCheckIn(), currentTime);
-			t.setCheckOut(currentTime);
+			checkinTime = tc.diffOfTime(t.getCheckIn(), getCurrentTime());
+			t.setCheckOut(getCurrentTime());
 			t.setCheckInTime(checkinTime);
 			timeRepo.save(t).getCheckOut();
 			workedTime = tc.addTimes(checkinTime, att.getWorkedTime());
