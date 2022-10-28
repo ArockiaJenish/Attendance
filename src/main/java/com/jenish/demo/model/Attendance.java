@@ -1,6 +1,7 @@
 package com.jenish.demo.model;
 
 import java.sql.Date;
+import java.sql.Time;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,9 +17,9 @@ public class Attendance {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int id;
 	private String status;
-	private String logIn;
-	private String logOut;
-	private String workedTime;
+	private Time logIn;
+	private Time logOut;
+	private Time workedTime;
 	private Date date;
 	private int stuId;
 }

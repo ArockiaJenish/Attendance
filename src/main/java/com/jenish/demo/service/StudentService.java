@@ -1,7 +1,7 @@
 package com.jenish.demo.service;
 
 import java.sql.Date;
-
+import java.sql.Time;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -75,7 +75,7 @@ public class StudentService implements StuServiceInterface {
 			if (l != null) {
 				if (l.getCheckOut() == null) {
 					stuDto.setCheckIn(true);
-					String running = tc.addTimes(at.getWorkedTime(), tc.diffOfTime(l.getCheckIn(), getCurrentTime()));
+					Time running = tc.addTimes(at.getWorkedTime(), tc.diffOfTime(l.getCheckIn(), getCurrentTime()));
 					stuDto.setLoginTime(running);
 				} else {
 					stuDto.setCheckIn(false);
@@ -91,7 +91,7 @@ public class StudentService implements StuServiceInterface {
 
 	// -------------For check in student----------
 	public String checkIn(int id) {
-		String totTime = null;
+		Time totTime = null;
 		try {
 			stuRepo.findById(id).get();
 			Attendance attn = atnRepo.stuByDateAndId(getCurrentDate(), id);// -----------------
@@ -109,7 +109,7 @@ public class StudentService implements StuServiceInterface {
 				att.setDate(getCurrentDate());// --------------------
 				att.setStatus("P");
 				att.setLogIn(getCurrentTime());
-				att.setWorkedTime("00:00:00");
+				att.setWorkedTime(getEmptyTime());
 				updateCheckin(att.getLogIn(), id);
 				totTime = atnRepo.save(att).getWorkedTime();
 			} else {
@@ -120,18 +120,23 @@ public class StudentService implements StuServiceInterface {
 		} catch (NoSuchElementException nse) {
 			return "No Student available";
 		}
-		return totTime;
+		return totTime.toString();
 	}
 
-	private String updateCheckin(String checkInTime, int id) {
+	private Time updateCheckin(Time checkInTime, int id) {
 
 		TimeLogs log = new TimeLogs();
 		log.setCheckIn(checkInTime);
-		log.setCheckInTime("00:00:00");
-		log.setDate(getCurrentDate());// --------------------------
+		log.setCheckInTime(getEmptyTime());
+		log.setDate(getCurrentDate());
 		log.setStuId(id);
 
 		return timeRepo.save(log).getCheckIn();
+	}
+
+	//for get empty time-------
+	private Time getEmptyTime() {
+		return Time.valueOf("00:00:00");
 	}
 
 	/*
@@ -139,6 +144,7 @@ public class StudentService implements StuServiceInterface {
 	 * Date.valueOf("2022-10-19"); }
 	 */
 
+	//for get current date------
 	private Date getCurrentDate() {
 
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -147,11 +153,12 @@ public class StudentService implements StuServiceInterface {
 		return Date.valueOf(dtf.format(now));
 	}
 
-	private String getCurrentTime() {
+	//for get current time------
+	private Time getCurrentTime() {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		System.out.println(dtf.format(now));
-		return dtf.format(now);
+		return Time.valueOf(dtf.format(now));
 	}
 
 	// -----------For checkOut student-------------
@@ -180,9 +187,9 @@ public class StudentService implements StuServiceInterface {
 
 		TimeCalculation tc = new TimeCalculation();
 
-		String workedTime = null;
-		String checkinTime = null;
-		String currentTime = getCurrentTime();
+		Time workedTime = null;
+		Time checkinTime = null;
+		Time currentTime = getCurrentTime();
 
 		String totDayTime = null;
 		if (t.getCheckOut() == null) {
@@ -193,7 +200,7 @@ public class StudentService implements StuServiceInterface {
 			workedTime = tc.addTimes(checkinTime, att.getWorkedTime());
 			att.setLogOut(getCurrentTime());
 			att.setWorkedTime(workedTime);
-			totDayTime = atnRepo.save(att).getWorkedTime();
+			totDayTime = atnRepo.save(att).getWorkedTime().toString();
 		} else {
 			totDayTime = "You have already checked out";
 		}
@@ -230,7 +237,7 @@ public class StudentService implements StuServiceInterface {
 		List<Attendance> atns = atnRepo.findByStuId(id);
 
 		for (Attendance a : atns) {
-			String totTime = "00:00:00";
+			Time totTime = getEmptyTime();
 			TotalTime tt = new TotalTime();
 			List<TimeLogs> logs = timeRepo.findByDateAndId(a.getDate(), id);
 			for (TimeLogs l : logs) {
@@ -243,10 +250,10 @@ public class StudentService implements StuServiceInterface {
 			tt.setLogoutTime(a.getLogOut());
 			tt.setStatus(a.getStatus());
 			tt.setWorkedTime(totTime);
-			if (a.getLogOut() != null && a.getLogOut().contains(":"))
+			if (a.getLogOut() != null && a.getLogOut().toString().contains(":"))
 				tt.setLoggedInTime(tc.diffOfTime(a.getLogIn(), a.getLogOut()));
 			else
-				tt.setLoggedInTime("00:00:00");
+				tt.setLoggedInTime(getEmptyTime());
 			/*
 			 * overAllTime = tc.addTimes(a.getTotLoginTime(), overAllTime);
 			 * tt.setOverAllTime(overAllTime);
@@ -261,7 +268,7 @@ public class StudentService implements StuServiceInterface {
 	// @Scheduled(cron = "0 58 23 * * ?")
 	public String updateRecord() {
 		List<Student> stdns = stuRepo.findAll();
-		String zeroTime = "00:00:00";
+		//String zeroTime = "00:00:00";
 		for (Student s : stdns) {
 			List<TimeLogs> logs = timeRepo.findByOrder(getCurrentDate(), s.getId());// To get last one
 			TimeLogs l = null;
@@ -272,8 +279,8 @@ public class StudentService implements StuServiceInterface {
 			}
 			if (l != null) {
 				if (l.getCheckOut() == null) {
-					l.setCheckOut("********");
-					l.setCheckInTime(zeroTime);
+					l.setCheckOut(getEmptyTime());
+					l.setCheckInTime(getEmptyTime());
 					timeRepo.save(l);
 					updateAttendance(s.getId(), l.getDate(), "A");// Set as absent
 				} else {
@@ -285,9 +292,9 @@ public class StudentService implements StuServiceInterface {
 				l = new TimeLogs();
 				l.setDate(getCurrentDate());
 				l.setStuId(s.getId());
-				l.setCheckIn(zeroTime);
-				l.setCheckOut(zeroTime);
-				l.setCheckInTime(zeroTime);
+				l.setCheckIn(getEmptyTime());
+				l.setCheckOut(getEmptyTime());
+				l.setCheckInTime(getEmptyTime());
 				timeRepo.save(l);
 			}
 		}
@@ -297,23 +304,23 @@ public class StudentService implements StuServiceInterface {
 
 	private void updateAttendance(int id, Date logDate, String status) {// Mark as absent
 
-		String emptyTime = "00:00:00";
+		//String emptyTime = "00:00:00";
 		Attendance at = atnRepo.stuByDateAndId(logDate, id);
 
 		if (at != null) {
 			System.out.println("Status = " + at.getStatus());
 			at.setStatus(status);
-			at.setLogOut("********");
-			at.setWorkedTime(emptyTime);
+			at.setLogOut(getEmptyTime());
+			at.setWorkedTime(getEmptyTime());
 			atnRepo.save(at);
 		} else {
 			Attendance a = new Attendance();
 			a.setDate(logDate);
 			a.setStatus(status);
 			a.setStuId(id);
-			a.setLogIn(emptyTime);
-			a.setLogOut(emptyTime);
-			a.setWorkedTime(emptyTime);
+			a.setLogIn(getEmptyTime());
+			a.setLogOut(getEmptyTime());
+			a.setWorkedTime(getEmptyTime());
 			atnRepo.save(a);
 		}
 

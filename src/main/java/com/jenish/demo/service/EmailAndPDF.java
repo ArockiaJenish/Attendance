@@ -117,12 +117,12 @@ public class EmailAndPDF {
 			for (Attendance at : atns) {
 
 				table.addCell(new Cell().add(getAsString(at.getDate())));
-				table.addCell(new Cell().add(at.getLogIn()));
+				table.addCell(new Cell().add(at.getLogIn().toString()));
 				if(at.getLogOut()!=null)
-					table.addCell(new Cell().add(at.getLogOut()));
+					table.addCell(new Cell().add(at.getLogOut().toString()));
 				else
 					table.addCell(new Cell().add("00:00:00"));
-				table.addCell(new Cell().add(at.getWorkedTime()));
+				table.addCell(new Cell().add(at.getWorkedTime().toString()));
 				table.addCell(new Cell().add(at.getStatus()));
 
 			}

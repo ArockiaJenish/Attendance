@@ -1,5 +1,7 @@
 package com.jenish.demo.dto;
 
+import java.sql.Time;
+
 import lombok.Data;
 
 @Data
@@ -9,6 +11,6 @@ public class StudentDTO {
 	private String name;
 	private String email;
 	private boolean isCheckIn;
-	private String loginTime;
+	private Time loginTime;
 
 }

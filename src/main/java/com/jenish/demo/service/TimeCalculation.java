@@ -1,19 +1,20 @@
 package com.jenish.demo.service;
 
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class TimeCalculation {
 
-	public String diffOfTime(String checkIn, String checkOut) {
+	public Time diffOfTime(Time checkIn, Time checkOut) {
 		String totTime = null;
 		long result = 0;
 
 		try {
 			SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
-			Date date1 = format.parse(checkIn);
-			Date date2 = format.parse(checkOut);
+			Date date1 = format.parse(checkIn.toString());
+			Date date2 = format.parse(checkOut.toString());
 
 			//System.out.println(date2.getTime() + " - " + date1.getTime());
 			result = date2.getTime() - date1.getTime();
@@ -25,7 +26,7 @@ public class TimeCalculation {
 			int hours = (int) (result / (1000 * 60 * 60) % 24);
 			totTime = timeFormat(hours) + ":" + timeFormat(minutes) + ":" + timeFormat(seconds);
 			//System.out.println(hours + ":" + minutes + ":" + seconds);
-			return totTime;
+			return Time.valueOf(totTime);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -38,14 +39,14 @@ public class TimeCalculation {
 		return "" + val;
 	}
 
-	public String addTimes(String checkIn, String checkOut) {
-		ArrayList<String> times = new ArrayList<String>();
+	public Time addTimes(Time checkIn, Time checkOut) {
+		ArrayList<Time> times = new ArrayList<Time>();
 		times.add(checkIn);
 		times.add(checkOut);
 
 		long tm = 0;
-		for (String t : times) {
-			String[] arr = t.split(":");
+		for (Time t : times) {
+			String[] arr = t.toString().split(":");
 			tm += Integer.parseInt(arr[2]);
 			tm += 60 * Integer.parseInt(arr[1]);
 			tm += 3600 * Integer.parseInt(arr[0]);
@@ -58,7 +59,7 @@ public class TimeCalculation {
 		long ss = tm;
 		String result = format(hh) + ":" + format(mm) + ":" + format(ss);
 		//System.out.println(result);
-		return result;
+		return Time.valueOf(result);
 	}
 
 	private static String format(long s) {

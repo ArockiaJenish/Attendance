@@ -1,6 +1,7 @@
 package com.jenish.demo.model;
 
 import java.sql.Date;
+import java.sql.Time;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,8 +18,8 @@ public class TimeLogs {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private long id;
 	private Date date;
-	private String checkIn;
-	private String checkOut;
-	private String checkInTime;
+	private Time checkIn;
+	private Time checkOut;
+	private Time checkInTime;
 	private int stuId;
 }

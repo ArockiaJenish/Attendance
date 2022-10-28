@@ -1,6 +1,7 @@
 package com.jenish.demo.dto;
 
 import java.sql.Date;
+import java.sql.Time;
 import java.util.List;
 
 import com.jenish.demo.model.TimeLogs;
@@ -11,11 +12,11 @@ import lombok.Data;
 public class TotalTime {
 
 	private String status;
-	private String loginTime;
-	private String logoutTime;
+	private Time loginTime;
+	private Time logoutTime;
 	private Date date;
-	private String workedTime;
-	private String loggedInTime;
+	private Time workedTime;
+	private Time loggedInTime;
 	//private String overAllTime;
 	private List<TimeLogs> timeLog;
 	
