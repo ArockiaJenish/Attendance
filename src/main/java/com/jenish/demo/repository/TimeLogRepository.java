@@ -17,9 +17,9 @@ public interface TimeLogRepository extends JpaRepository<TimeLogs, Integer> {
 	@Query(byDateAndId)
 	public List<TimeLogs> findByDateAndId(@Param("date") Date date, @Param("id") int id);
 	
-	String orderByTime = "select * from time_logs where stu_id = :id and date = :date order by id desc";
+	String orderByTime = "select * from time_logs where stu_id = :id and date = :date order by id desc limit 1";
 	@Query(nativeQuery = true, value=orderByTime)
-	public List<TimeLogs> findByOrder(@Param("date") Date date, @Param("id") int id);
+	public TimeLogs findLast(@Param("date") Date date, @Param("id") int id);
 	
 	String byStuId = "select t from TimeLogs t where t.stuId = :id";
 	@Query(byStuId)

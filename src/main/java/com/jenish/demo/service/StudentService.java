@@ -67,11 +67,11 @@ public class StudentService implements StuServiceInterface {
 			stuDto.setName(exStu.getName());
 
 			// ----------For check 'isCheckIn' and get existing login time----------
-			List<TimeLogs> logs = timeRepo.findByOrder(getCurrentDate(), exStu.getId());
+			TimeLogs l = timeRepo.findLast(getCurrentDate(), exStu.getId());
 			Attendance at = atnRepo.stuByDateAndId(getCurrentDate(), exStu.getId());
-			TimeLogs l = null;
-			if (!logs.isEmpty())
-				l = logs.get(0);
+			/*
+			 * TimeLogs l = null; if (!logs.isEmpty()) l = logs.get(0);
+			 */
 			if (l != null) {
 				if (l.getCheckOut() == null) {
 					stuDto.setCheckIn(true);
@@ -96,12 +96,14 @@ public class StudentService implements StuServiceInterface {
 			stuRepo.findById(id).get();
 			Attendance attn = atnRepo.stuByDateAndId(getCurrentDate(), id);// -----------------
 
-			List<TimeLogs> logs = timeRepo.findByOrder(getCurrentDate(), id);// --------------------
-			if (!logs.isEmpty()) {
-				TimeLogs log = logs.get(0);
-				if (log.getCheckOut() == null)
-					return "You are already checked in!";
-			}
+			TimeLogs log = timeRepo.findLast(getCurrentDate(), id);// --------------------
+			/*
+			 * if (!logs.isEmpty()) { TimeLogs log = logs.get(0);
+			 * 
+			 * }
+			 */
+			if (log.getCheckOut() == null)
+				return "You are already checked in!";
 
 			if (attn == null) {
 				Attendance att = new Attendance();
@@ -168,8 +170,8 @@ public class StudentService implements StuServiceInterface {
 			stuRepo.findById(id);
 			Attendance att = atnRepo.stuByDateAndId(getCurrentDate(), id);
 			if (att != null) {
-				List<TimeLogs> tl = timeRepo.findByOrder(getCurrentDate(), id);
-				TimeLogs t = tl.get(0);
+				TimeLogs t = timeRepo.findLast(getCurrentDate(), id);
+				//TimeLogs t = tl.get(0);
 				if (t.getCheckOut() == null) {
 					checkOutTime = updateLogOut(id, att, t);
 				} else {
@@ -270,13 +272,8 @@ public class StudentService implements StuServiceInterface {
 		List<Student> stdns = stuRepo.findAll();
 		//String zeroTime = "00:00:00";
 		for (Student s : stdns) {
-			List<TimeLogs> logs = timeRepo.findByOrder(getCurrentDate(), s.getId());// To get last one
-			TimeLogs l = null;
-			if (!logs.isEmpty()) {
-				l = logs.get(0);
-			} else {
-				updateAttendance(s.getId(), getCurrentDate(), "A");// Set as absent
-			}
+			TimeLogs l = timeRepo.findLast(getCurrentDate(), s.getId());// To get last one
+			
 			if (l != null) {
 				if (l.getCheckOut() == null) {
 					l.setCheckOut(getEmptyTime());
@@ -284,8 +281,7 @@ public class StudentService implements StuServiceInterface {
 					timeRepo.save(l);
 					updateAttendance(s.getId(), l.getDate(), "A");// Set as absent
 				} else {
-					// updateAttendance(s.getId(), l.getDate());// Set total time in attendance
-					// table
+					
 					System.out.println("No need to update already updated");
 				}
 			} else {
@@ -296,6 +292,7 @@ public class StudentService implements StuServiceInterface {
 				l.setCheckOut(getEmptyTime());
 				l.setCheckInTime(getEmptyTime());
 				timeRepo.save(l);
+				updateAttendance(s.getId(), getCurrentDate(), "A");// Set as absent
 			}
 		}
 
